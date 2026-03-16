@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #352140;
+}
+
+.ctn-1 {
+  display: flex;
+  justify-content: center; 
+  align-items: center;   
+  margin: 10px;             
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: linear-gradient(180deg,#2b2140,#1a1426);
+  color: #b7b6b7;
+  font-size: 14px;
+  font-family: sans-serif;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
