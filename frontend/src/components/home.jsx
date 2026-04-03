@@ -24,6 +24,9 @@ const Home = () => {
         <div className='student'>
           <span className='st-icons'><PiStudentFill /></span>
           <h2 className='st-title'>Student</h2>
+          <div className='st-attendance'>
+            <p>Mark your attendance</p>
+          </div>
         </div>
         <div className='teacher'>
           <span className='te-icons'><GiTeacher /></span>
