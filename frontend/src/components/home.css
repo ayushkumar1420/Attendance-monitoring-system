@@ -1,15 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #050138;
+  margin: 0;
+  padding: 0;
+  background-color: #0b0914;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  color: white;
+  font-family: 'Inter', sans-serif;
 }
 
 .ctn-1 {
   display: flex;
   flex-direction: column;
-  justify-content: center; 
-  align-items: center;   
-  margin: 20px;             
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
 }
 
 .badge {
@@ -18,144 +29,262 @@ body {
   gap: 8px;
   padding: 8px 16px;
   border-radius: 999px;
-  background: linear-gradient(180deg,#2b2140,#1a1426);
-  color: #b7b6b7;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.badge .icon {
   font-size: 14px;
-  font-family: sans-serif;
-  border: 1px solid rgba(255,255,255,0.15);
 }
 
 .head {
-  font-size: 30px;
-  margin-top: 40px;
-  letter-spacing: 1px;
-  font-family: 'Inter', sans-serif;
-  font-style: geomatric;
-  font-weight: 1000;
-  background: linear-gradient(90deg, rgb(0,255,255), rgb(180,0,255));
+  font-size: 64px;
+  margin: 0 0 16px 0;
+  letter-spacing: -1px;
+  font-weight: 800;
+}
+
+.text-attend {
+  background: linear-gradient(90deg, #818cf8, #c084fc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.text-ai {
+  background: linear-gradient(90deg, #f43f5e, #fb923c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .para {
-  color: #b7b6b7;
-  font-family: sans-serif;
-  margin-top: 0;
+  color: #a1a1aa;
+  font-size: 18px;
+  margin: 0 0 8px 0;
 }
 
 .option {
-  color: #777777;
-  font-family: sans-serif;
-  margin-top: 0;
+  color: #71717a;
+  font-size: 14px;
+  margin: 0 0 48px 0;
 }
 
 .roles {
   display: flex;
   justify-content: center;
-  flex-direction: row;
-  margin-top: 20px;
+  gap: 24px;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
 }
 
-/*phone*/
-@media (max-width:600px) {
-  .roles {
-    flex-direction: column;
-    align-items: column;
-  }
-}
-
-/*tablet*/
-@media (min-width:601px) and (max-width:900px) {
-  .roles {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-.student, .teacher, .admin {
-  color: white;
-  border-radius: 20px;
-  margin: 40px;
-  display: inline-flex;
-  font-family: sans-serif;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgb(3, 14, 48), rgb(48, 0, 109));
-  padding: 30px;
-  width: 400px;
-  height: 340px;
-  box-sizing: border-box; 
-  border: 1px solid rgba(255, 249, 249, 0.1);
+.card {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 32px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-.student:hover, .teacher:hover, .admin:hover {
-  transform: translateY(-8px);
-  box-shadow: 
-    0 10px 20px rgba(45, 39, 221, 0.4),
-    0 10px 30px rgba(180,0,255,0.4);
+.card:hover {
+  transform: translateY(-4px);
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.02);
 }
 
-.st-title, 
-.te-title,
-.ad-title {
-  margin-left: 10px;
-  font-size: 25px;
-  margin-top: 8px;
-  letter-spacing: 1px;
-  font-weight: 800;
-  background-color: white;
-    -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.card-icon {
+  font-size: 48px;
+  margin-bottom: 24px;
 }
 
-.st-icons {
-  font-size: 50px;
-  color: orange ;
-}
-
-.st-attendance {
+.card-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin: 20px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: linear-gradient(180deg,#2b2140,#1a1426);
-  color: #b7b6b7;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  width: fit-content;
+  margin-bottom: 16px;
+}
+
+.student-pill {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.teacher-pill {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #5eead4;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+}
+
+.admin-pill {
+  background-color: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.student-enter-portal-btn {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 50px;
+  padding: 5px 16px;
   font-family: sans-serif;
-  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 12px;
 }
 
-.te-icons {
-  font-size: 50px;
-  color: yellow;
+.teacher-enter-portal-btn {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #5eead4;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: 50px;
+  padding: 5px 16px;
+  font-family: sans-serif;
+  font-size: 12px;
 }
 
-.ad-icons {
-  font-size: 50px;
-  color: pink;
+.admin-enter-portal-btn {
+  background-color: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  border-radius: 50px;
+  padding: 5px 16px;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+
+.card-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #f4f4f5;
+}
+
+.card-desc {
+  color: #a1a1aa;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+  flex-grow: 1;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #71717a;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.card:hover .card-footer {
+  color: #d4d4d8;
 }
 
 .footer {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: -8px;
+  align-items: center;
+  gap: 16px;
+  color: #52525b;
+  font-size: 13px;
 }
 
 .footer-element {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-icon {
+  display: flex;
   align-items: center;
 }
 
-.ft-para {
-  color: #5b5a5b;
-  margin-top: 8px;
-  font-family: sans-serif;
+.dot {
+  color: #3f3f46;
 }
 
-.face-icons, .real-icons, .secure-icons {
-  color: #828182;
+/* Responsive */
+@media (max-width: 1100px) {
+  .roles {
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 800px) {
+  .roles {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .head {
+    font-size: 48px;
+    text-align: center;
+  }
+
+  .para {
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .option {
+    text-align: center;
+  }
+
+  .badge {
+    margin-bottom: 20px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dot {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .head {
+    font-size: 36px;
+  }
+
+  .para {
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 24px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .ctn-1 {
+    padding: 20px 16px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
 }

@@ -1,8 +1,6 @@
 import React from 'react'
 import './home.css'
-import { PiStudentFill } from "react-icons/pi";
-import { GiTeacher } from "react-icons/gi";
-import { RiAdminFill } from "react-icons/ri";
+import RoleCards from './RoleCards';
 import { RiVoiceRecognitionLine } from "react-icons/ri";
 import { BsFillLightningChargeFill } from "react-icons/bs";
 import { RiSecurePaymentFill } from "react-icons/ri";
@@ -16,42 +14,29 @@ const Home = () => {
         <span class="icon">✨</span>
       </div>
 
-      <h1 className='head'>Attendance-AI</h1>
+      <h1 className='head'>
+        <span className="text-attend">Attend</span>
+        <span className="text-ai">AI</span>
+      </h1>
       <p className='para'>Face Recognition · Real-time Analytics · Smart Tracking</p>
       <p className='option'>Select your role to continue</p>
 
-      <div className='roles'>
-        <div className='student'>
-          <span className='st-icons'><PiStudentFill /></span>
-          <h2 className='st-title'>Student</h2>
-          <div className='st-attendance'>
-            <p>Mark your attendance</p>
-          </div>
-        </div>
-        <div className='teacher'>
-          <span className='te-icons'><GiTeacher /></span>
-          <h2 className='te-title'>Teacher</h2>
-        </div>
-        <div className='admin'>
-          <span className='ad-icons'><RiAdminFill /></span>
-          <h2 className='ad-title'>Admin</h2>
-        </div>
-      </div>
+      <RoleCards />
       <footer className='footer'>
-          <div className='footer-element'>
-            <span className='face-icons'><RiVoiceRecognitionLine /></span>
-            <p className='ft-para'>Face Reconition</p>
-          </div>
-
-          <div className='footer-element'>
-            <span className='real-icons'><BsFillLightningChargeFill /></span>
-            <p className='ft-para'>Real Time Marking</p>
-          </div>
-
-          <div className='footer-element'>
-            <span className='secure-icons'><RiSecurePaymentFill /></span>
-            <p className='ft-para'>Secure & Private</p>
-          </div>
+        <div className='footer-element'>
+          <span className='footer-icon'><RiVoiceRecognitionLine /></span>
+          <span className='ft-para'>Face Recognition</span>
+        </div>
+        <span className="dot">•</span>
+        <div className='footer-element'>
+          <span className='footer-icon'><BsFillLightningChargeFill /></span>
+          <span className='ft-para'>Real Time Marking</span>
+        </div>
+        <span className="dot">•</span>
+        <div className='footer-element'>
+          <span className='footer-icon'><RiSecurePaymentFill /></span>
+          <span className='ft-para'>Secure & Private</span>
+        </div>
       </footer>
     </div>
   )
