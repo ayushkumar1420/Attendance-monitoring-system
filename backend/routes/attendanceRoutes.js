@@ -236,6 +236,35 @@ router.get('/teacher-dashboard', async (req, res) => {
   }
 });
 
+// Helper function to calculate real defaulters (Attendance < 75%)
+const getDefaulters = async (students) => {
+  // To calculate a true percentage, we need to know "Total Working Days".
+  // For this demo, let's dynamically determine total working days 
+  // as the number of unique days *any* attendance was marked.
+  const uniqueDates = await Attendance.distinct('date');
+  const totalDays = uniqueDates.length || 1; // avoid division by 0
+  
+  const defaultersList = [];
+
+  for (const student of students) {
+    const presentDays = await Attendance.countDocuments({ student: student._id });
+    const percentage = Math.round((presentDays / totalDays) * 100);
+
+    if (percentage < 75) {
+      defaultersList.push({
+        id: student._id,
+        initials: student.name.charAt(0).toUpperCase(),
+        name: student.name,
+        dept: student.department || 'N/A',
+        presentDays,
+        totalDays,
+        percentage
+      });
+    }
+  }
+  return defaultersList;
+};
+
 // Endpoint for Admin Dashboard
 router.get('/admin-dashboard', async (req, res) => {
   try {
@@ -262,9 +291,8 @@ router.get('/admin-dashboard', async (req, res) => {
       faceRegistered = files.filter(f => f.endsWith('.jpg')).length;
     }
 
-    // Determine Defaulters (Mocking attendance < 75%)
-    // Real implementation would calculate total days vs present days
-    const defaultersCount = Math.floor(absent / 2); // Simple mock for now
+    // Determine Defaulters (Attendance < 75%)
+    const defaultersList = await getDefaulters(students);
 
     res.json({
       total,
@@ -272,10 +300,34 @@ router.get('/admin-dashboard', async (req, res) => {
       present,
       presentRate,
       absent,
-      defaulters: defaultersCount
+      defaultersCount: defaultersList.length,
+      defaultersList
     });
   } catch (error) {
     console.error('Admin dashboard error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Endpoint to get all registered students
+router.get('/students', async (req, res) => {
+  try {
+    const students = await User.find({ role: 'student' }, '-password');
+    res.json(students);
+  } catch (error) {
+    console.error('Fetch students error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Endpoint to get all attendance records
+router.get('/records', async (req, res) => {
+  try {
+    // Populate the student details so the frontend can display names
+    const records = await Attendance.find().populate('student', 'name rollId department').sort({ date: -1 });
+    res.json(records);
+  } catch (error) {
+    console.error('Fetch records error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
