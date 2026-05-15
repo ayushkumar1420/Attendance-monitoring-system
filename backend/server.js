@@ -1,11 +1,33 @@
 const express = require('express');
-const app = express();
-const port = 3000;
+const mongoose = require('mongoose');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+// Increase limit for base64 image data
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Database Connection
+mongoose.connect('mongodb://127.0.0.1:27017/attendance')
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.log('MongoDB Connection Error: ', err));
+
+// Routes
+app.use('/api/attendance', attendanceRoutes);
+
+// Health check
 app.get('/', (req, res) => {
-    res.send('backend is running!');
+  res.send('Attendance API is running...');
 });
 
-app.listen(port, () => {
-    console.log(`Server is live at http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
