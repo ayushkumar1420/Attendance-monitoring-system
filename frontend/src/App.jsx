@@ -2,9 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./components/home"; // We will rename/update this
-import StudentPortal from "./pages/student";
-import TeacherPortal from "./pages/teacher";
-import AdminPortal from "./pages/admin";
+import StudentPortal from "./pages/StudentPortal";
+import TeacherPortal from "./pages/TeacherPortal";
+import AdminPortal from "./pages/AdminPortal";
 import Registration from "./pages/Registration";
 
 const App = () => {
