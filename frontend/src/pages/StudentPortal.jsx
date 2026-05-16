@@ -12,7 +12,7 @@ const StudentPortal = () => {
   const [scanMessage, setScanMessage] = useState('Click "Start Face Scan" to mark attendance');
   const [matchResult, setMatchResult] = useState(null); // { success: true/false, message: '' }
   
-  const [allStudents, setAllStudents] = presentToday = useState([]);
+  const [allStudents, setAllStudents] = useState([]);
   const [records, setRecords] = useState([]);
   
   const webcamRef = useRef(null);

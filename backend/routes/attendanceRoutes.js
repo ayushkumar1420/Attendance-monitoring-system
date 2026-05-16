@@ -166,16 +166,26 @@ router.get('/teacher-dashboard', async (req, res) => {
   try {
     const students = await User.find({ role: 'student' });
     
-    // Get start of today
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+    // Parse the date from query params or default to today
+    let startOfDay, endOfDay;
+    if (req.query.date) {
+      startOfDay = new Date(req.query.date);
+      startOfDay.setHours(0, 0, 0, 0);
+      endOfDay = new Date(req.query.date);
+      endOfDay.setHours(23, 59, 59, 999);
+    } else {
+      startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+    }
 
     const result = [];
 
     for (const student of students) {
-      const attendanceToday = await Attendance.findOne({
+      const attendanceForDate = await Attendance.findOne({
         student: student._id,
-        date: { $gte: startOfToday }
+        date: { $gte: startOfDay, $lte: endOfDay }
       });
 
       result.push({
@@ -185,7 +195,7 @@ router.get('/teacher-dashboard', async (req, res) => {
         roll: student.rollId || 'N/A',
         dept: student.department || 'N/A',
         year: student.year || 'N/A',
-        status: attendanceToday ? 'Present' : 'Absent',
+        status: attendanceForDate ? 'Present' : 'Absent',
         color: '#06b6d4'
       });
     }
@@ -289,6 +299,41 @@ router.get('/records', async (req, res) => {
     res.json(records);
   } catch (error) {
     console.error('Fetch records error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Endpoint to get all registered teachers
+router.get('/teachers', async (req, res) => {
+  try {
+    const teachers = await User.find({ role: 'teacher' }, '-password');
+    res.json(teachers);
+  } catch (error) {
+    console.error('Fetch teachers error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Endpoint to delete a user (student or teacher) and their attendance
+router.delete('/user/:id', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Delete associated attendance records if it's a student
+    if (user.role === 'student') {
+      await Attendance.deleteMany({ student: userId });
+    }
+
+    await User.findByIdAndDelete(userId);
+    
+    res.json({ message: `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} deleted successfully` });
+  } catch (error) {
+    console.error('Delete user error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

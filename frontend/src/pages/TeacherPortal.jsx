@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Webcam from 'react-webcam';
-import { FiArrowLeft, FiRefreshCw, FiCheckCircle, FiUsers, FiBarChart2, FiSearch, FiCalendar, FiChevronDown, FiUserPlus, FiCamera, FiAlertTriangle } from "react-icons/fi";
+import { FiArrowLeft, FiRefreshCw, FiCheckCircle, FiUsers, FiBarChart2, FiSearch, FiCalendar, FiChevronDown, FiUserPlus, FiCamera, FiAlertTriangle, FiTrash2 } from "react-icons/fi";
 import { HiOutlineTemplate } from "react-icons/hi";
 import './teacher.css';
 
@@ -15,12 +15,31 @@ const Teacher = () => {
   const [allStudents, setAllStudents] = useState([]);
   const [stats, setStats] = useState({ defaultersList: [] }); // Reusing admin dashboard data for analytics tab
 
+  // Filter states
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDept, setSelectedDept] = useState('All');
+  const [selectedYear, setSelectedYear] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const fetchDashboardData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/attendance/teacher-dashboard');
+      const res = await axios.get(`http://localhost:5000/api/attendance/teacher-dashboard?date=${selectedDate}`);
       setStudents(res.data);
     } catch (error) {
       console.error('Failed to fetch dashboard', error);
+    }
+  };
+
+  const handleDeleteStudent = async (id) => {
+    if (window.confirm('Are you sure you want to delete this student and all their attendance records? This action cannot be undone.')) {
+      try {
+        await axios.delete(`http://localhost:5000/api/attendance/user/${id}`);
+        // Remove locally without refreshing
+        setAllStudents(prev => prev.filter(s => s._id !== id));
+        setStudents(prev => prev.filter(s => s.id !== id)); // updates dashboard tab too
+      } catch (error) {
+        alert(error.response?.data?.message || 'Failed to delete student');
+      }
     }
   };
 
@@ -60,11 +79,18 @@ const Teacher = () => {
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, [activeTab]);
+  }, [activeTab, selectedDate]);
 
 
 
-  const presentCount = students.filter(s => s.status === 'Present').length;
+  const filteredStudents = students.filter(student => {
+    const matchDept = selectedDept === 'All' || student.dept === selectedDept;
+    const matchYear = selectedYear === 'All' || student.year === selectedYear;
+    const matchSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) || student.roll.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchDept && matchYear && matchSearch;
+  });
+
+  const presentCount = filteredStudents.filter(s => s.status === 'Present').length;
 
   return (
     <div className="tp-container">
@@ -113,21 +139,45 @@ const Teacher = () => {
               <div className="tp-filters-bar">
                 <div className="tp-filters-left">
                   <div className="tp-filter-item">
-                    <span>{new Date().toLocaleDateString('en-GB')}</span> <FiCalendar />
+                    <input 
+                      type="date" 
+                      value={selectedDate} 
+                      onChange={e => setSelectedDate(e.target.value)}
+                      style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', fontFamily: 'inherit' }}
+                    />
                   </div>
                   <div className="tp-filter-item">
-                    <span>All</span> <FiChevronDown />
+                    <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', appearance: 'none', paddingRight: '1rem', cursor: 'pointer' }}>
+                      <option value="All" style={{color: '#000'}}>All Depts</option>
+                      <option value="Computer" style={{color: '#000'}}>Computer</option>
+                      <option value="Mechanical" style={{color: '#000'}}>Mechanical</option>
+                      <option value="Civil" style={{color: '#000'}}>Civil</option>
+                      <option value="Electronics" style={{color: '#000'}}>Electronics</option>
+                    </select>
+                    <FiChevronDown style={{marginLeft: '-1rem', pointerEvents: 'none'}} />
                   </div>
                   <div className="tp-filter-item">
-                    <span>All</span> <FiChevronDown />
+                    <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', appearance: 'none', paddingRight: '1rem', cursor: 'pointer' }}>
+                      <option value="All" style={{color: '#000'}}>All Years</option>
+                      <option value="1st" style={{color: '#000'}}>1st</option>
+                      <option value="2nd" style={{color: '#000'}}>2nd</option>
+                      <option value="3rd" style={{color: '#000'}}>3rd</option>
+                      <option value="4th" style={{color: '#000'}}>4th</option>
+                    </select>
+                    <FiChevronDown style={{marginLeft: '-1rem', pointerEvents: 'none'}} />
                   </div>
                   <div className="tp-search-bar">
                     <FiSearch className="tp-search-icon" />
-                    <input type="text" placeholder="Search student..." />
+                    <input 
+                      type="text" 
+                      placeholder="Search student..." 
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="tp-filters-right">
-                  <span className="tp-count-highlight">{presentCount}</span> / {students.length} present
+                  <span className="tp-count-highlight">{presentCount}</span> / {filteredStudents.length} present
                 </div>
               </div>
 
@@ -143,10 +193,10 @@ const Teacher = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {students.length === 0 ? (
-                      <tr><td colSpan="5" className="tp-loading">No students registered.</td></tr>
+                    {filteredStudents.length === 0 ? (
+                      <tr><td colSpan="5" className="tp-loading">No students match the criteria.</td></tr>
                     ) : (
-                      students.map(student => (
+                      filteredStudents.map(student => (
                         <tr key={student.id}>
                           <td>
                             <div className="tp-student-info">
@@ -183,11 +233,12 @@ const Teacher = () => {
                     <th>ROLL ID</th>
                     <th>DEPARTMENT</th>
                     <th>YEAR</th>
+                    <th>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allStudents.length === 0 ? (
-                    <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>No students registered yet.</td></tr>
+                    <tr><td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>No students registered yet.</td></tr>
                   ) : (
                     allStudents.map(student => (
                       <tr key={student._id}>
@@ -196,6 +247,14 @@ const Teacher = () => {
                         <td>{student.rollId || 'N/A'}</td>
                         <td>{student.department || 'N/A'}</td>
                         <td>{student.year || 'N/A'}</td>
+                        <td>
+                          <button 
+                            onClick={() => handleDeleteStudent(student._id)}
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.4rem 0.6rem', borderRadius: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                          >
+                            <FiTrash2 /> Delete
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}

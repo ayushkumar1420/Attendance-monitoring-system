@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Webcam from 'react-webcam';
-import { FiArrowLeft, FiRefreshCw, FiUsers, FiUserCheck, FiUserX, FiAlertTriangle, FiPlus, FiCamera, FiBookOpen } from "react-icons/fi";
+import { FiArrowLeft, FiRefreshCw, FiUsers, FiUserCheck, FiUserX, FiAlertTriangle, FiPlus, FiCamera, FiBookOpen, FiTrash2 } from "react-icons/fi";
 import { BsLightningFill } from "react-icons/bs";
 import { HiOutlineChartBar } from "react-icons/hi";
 import './admin.css';
@@ -16,6 +16,7 @@ const Admin = () => {
     total: 0, faceRegistered: 0, present: 0, presentRate: 0, absent: 0, defaultersCount: 0, defaultersList: []
   });
   const [allStudents, setAllStudents] = useState([]);
+  const [allTeachers, setAllTeachers] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
   
   // Modal states
@@ -50,11 +51,36 @@ const Admin = () => {
     }
   };
 
+  const fetchTeachers = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/attendance/teachers');
+      setAllTeachers(res.data);
+    } catch (error) {
+      console.error('Failed to fetch teachers', error);
+    }
+  };
+
+  const handleDeleteUser = async (id, role) => {
+    if (window.confirm(`Are you sure you want to delete this ${role}? This action cannot be undone.`)) {
+      try {
+        await axios.delete(`http://localhost:5000/api/attendance/user/${id}`);
+        if (role === 'student') {
+          setAllStudents(prev => prev.filter(s => s._id !== id));
+          fetchStats(); // Update dashboard counts
+        } else {
+          setAllTeachers(prev => prev.filter(t => t._id !== id));
+        }
+      } catch (error) {
+        alert(error.response?.data?.message || `Failed to delete ${role}`);
+      }
+    }
+  };
+
   // Initial fetch and setup polling
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
-      await Promise.all([fetchStats(), fetchStudents(), fetchRecords()]);
+      await Promise.all([fetchStats(), fetchStudents(), fetchRecords(), fetchTeachers()]);
       setLoading(false);
     };
     
@@ -65,6 +91,7 @@ const Admin = () => {
       fetchStats();
       if (activeTab === 'Students') fetchStudents();
       if (activeTab === 'Records') fetchRecords();
+      if (activeTab === 'Teachers') fetchTeachers();
     }, 3000);
 
     return () => clearInterval(intervalId);
@@ -113,6 +140,12 @@ const Admin = () => {
           onClick={() => setActiveTab('Overview')}
         >
           <HiOutlineChartBar /> Overview
+        </button>
+        <button 
+          className={`ap-tab ${activeTab === 'Teachers' ? 'active' : ''}`}
+          onClick={() => setActiveTab('Teachers')}
+        >
+          <FiUsers /> Teachers
         </button>
         <button 
           className={`ap-tab ${activeTab === 'Students' ? 'active' : ''}`}
@@ -226,11 +259,12 @@ const Admin = () => {
                     <th>ROLL ID</th>
                     <th>DEPARTMENT</th>
                     <th>YEAR</th>
+                    <th>ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allStudents.length === 0 ? (
-                    <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>No students registered yet.</td></tr>
+                    <tr><td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>No students registered yet.</td></tr>
                   ) : (
                     allStudents.map(student => (
                       <tr key={student._id}>
@@ -239,6 +273,48 @@ const Admin = () => {
                         <td>{student.rollId || 'N/A'}</td>
                         <td>{student.department || 'N/A'}</td>
                         <td>{student.year || 'N/A'}</td>
+                        <td>
+                          <button 
+                            onClick={() => handleDeleteUser(student._id, 'student')}
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.4rem 0.6rem', borderRadius: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                          >
+                            <FiTrash2 /> Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab === 'Teachers' && (
+            <div className="ap-table-container">
+              <table className="ap-table">
+                <thead>
+                  <tr>
+                    <th>NAME</th>
+                    <th>EMAIL</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allTeachers.length === 0 ? (
+                    <tr><td colSpan="3" style={{textAlign: 'center', padding: '2rem'}}>No teachers registered yet.</td></tr>
+                  ) : (
+                    allTeachers.map(teacher => (
+                      <tr key={teacher._id}>
+                        <td>{teacher.name}</td>
+                        <td>{teacher.email}</td>
+                        <td>
+                          <button 
+                            onClick={() => handleDeleteUser(teacher._id, 'teacher')}
+                            style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '0.4rem 0.6rem', borderRadius: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                          >
+                            <FiTrash2 /> Delete
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}
