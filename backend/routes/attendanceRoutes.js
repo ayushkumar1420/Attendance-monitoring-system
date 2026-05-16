@@ -24,78 +24,44 @@ initializeMockData();
 // Endpoint to handle attendance marking via face recognition
 router.post('/mark', async (req, res) => {
   try {
-    const { image } = req.body;
+    const { studentId, confidence, method } = req.body;
     
-    if (!image) {
-      return res.status(400).json({ message: 'No image provided' });
+    if (!studentId) {
+      return res.status(400).json({ message: 'No student ID provided' });
     }
 
-    // Strip base64 header
-    const base64Data = image.replace(/^data:image\/jpeg;base64,/, "");
-    const tempImgPath = path.join(__dirname, '..', 'temp_face.jpg');
+    const student = await User.findById(studentId);
     
-    // Save image temporarily
-    fs.writeFileSync(tempImgPath, base64Data, 'base64');
+    if (!student) {
+      return res.status(404).json({ message: 'Student recognized but not found in DB.' });
+    }
 
-    // Call Python script
-    const pythonProcess = spawn('python', [path.join(__dirname, '..', 'face_recog.py'), tempImgPath]);
-    
-    let pythonOutput = '';
-    
-    pythonProcess.stdout.on('data', (data) => {
-      pythonOutput += data.toString();
+    // Record attendance
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Check if already marked today
+    const existingAttendance = await Attendance.findOne({
+      student: student._id,
+      date: { $gte: today }
     });
 
-    pythonProcess.stderr.on('data', (data) => {
-      console.error(`Python Error: ${data}`);
+    if (existingAttendance) {
+      return res.status(200).json({ message: 'Attendance already marked today', studentName: student.name });
+    }
+
+    const newAttendance = new Attendance({
+      student: student._id,
+      student_name: student.name,
+      roll_id: student.rollId,
+      department: student.department,
+      status: 'present',
+      confidence: confidence || 1,
+      method: method || 'face_recognition'
     });
 
-    pythonProcess.on('close', async (code) => {
-      // Clean up temp image
-      if (fs.existsSync(tempImgPath)) {
-        fs.unlinkSync(tempImgPath);
-      }
-
-      if (code !== 0) {
-        return res.status(500).json({ message: 'Face recognition failed' });
-      }
-
-      const result = pythonOutput.trim();
-      console.log('Python script returned:', result);
-      
-      // Expected result from Python: 'UNKNOWN' or a student's ID (filename)
-      if (result === 'UNKNOWN' || !result) {
-        return res.status(404).json({ message: 'Face not recognized. Please try again or register.' });
-      }
-
-      const student = await User.findById(result);
-      
-      if (!student) {
-        return res.status(404).json({ message: 'Student recognized but not found in DB.' });
-      }
-
-      // Record attendance
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      // Check if already marked today
-      const existingAttendance = await Attendance.findOne({
-        student: student._id,
-        date: { $gte: today }
-      });
-
-      if (existingAttendance) {
-        return res.status(200).json({ message: 'Attendance already marked today', studentName: student.name });
-      }
-
-      const newAttendance = new Attendance({
-        student: student._id,
-        status: 'present'
-      });
-
-      await newAttendance.save();
-      return res.status(200).json({ message: 'Attendance marked successfully', studentName: student.name });
-    });
+    await newAttendance.save();
+    return res.status(200).json({ message: 'Attendance marked successfully', studentName: student.name });
 
   } catch (error) {
     console.error('Error in mark attendance:', error);
@@ -166,7 +132,7 @@ router.post('/register-teacher', async (req, res) => {
 // Endpoint for Registering a Student
 router.post('/register-student', async (req, res) => {
   try {
-    const { name, email, password, rollId, department, year, image } = req.body;
+    const { name, email, password, rollId, department, year, face_descriptor, face_image_url } = req.body;
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -181,18 +147,13 @@ router.post('/register-student', async (req, res) => {
       role: 'student',
       rollId,
       department,
-      year
+      year,
+      face_descriptor,
+      face_image_url,
+      is_registered: true
     });
 
     await newStudent.save();
-
-    // Save the base64 image to backend/faces directory using the user ID
-    if (image) {
-      const base64Data = image.replace(/^data:image\/jpeg;base64,/, "");
-      const imagePath = path.join(__dirname, '../faces', `${newStudent._id}.jpg`);
-      fs.writeFileSync(imagePath, base64Data, 'base64');
-    }
-
     res.status(201).json({ message: 'Student registered successfully', student: newStudent });
   } catch (error) {
     console.error('Register student error:', error);

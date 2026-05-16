@@ -1,19 +1,24 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/home";
-import Student from "./pages/student";
-import Teacher from "./pages/teacher";
-import Admin from "./pages/admin";
+import Layout from "./components/Layout";
+import Home from "./components/home"; // We will rename/update this
+import StudentPortal from "./pages/student";
+import TeacherPortal from "./pages/teacher";
+import AdminPortal from "./pages/admin";
+import Registration from "./pages/Registration";
 
 const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/student" element={<Student />} />
-        <Route path="/teacher" element={<Teacher />} />
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/student" element={<StudentPortal />} />
+          <Route path="/teacher" element={<TeacherPortal />} />
+          <Route path="/admin" element={<AdminPortal />} />
+          <Route path="/registration" element={<Registration />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 };

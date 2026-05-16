@@ -23,13 +23,6 @@ const Admin = () => {
   const [teacherData, setTeacherData] = useState({ name: '', email: '', password: '' });
   const [modalMessage, setModalMessage] = useState('');
 
-  const [showStudentModal, setShowStudentModal] = useState(false);
-  const [studentData, setStudentData] = useState({ name: '', email: '', password: '', rollId: '', department: '', year: '' });
-  const [studentModalMsg, setStudentModalMsg] = useState('');
-  const webcamRef = useRef(null);
-  const [imgSrc, setImgSrc] = useState(null);
-  const [useWebcam, setUseWebcam] = useState(false);
-
   const fetchStats = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/attendance/admin-dashboard');
@@ -90,37 +83,7 @@ const Admin = () => {
     }
   };
 
-  const capture = () => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setImgSrc(imageSrc);
-    }
-  };
 
-  const handleRegisterStudent = async (e) => {
-    e.preventDefault();
-    if (!imgSrc) {
-      setStudentModalMsg('Please capture a face image first!');
-      return;
-    }
-    setStudentModalMsg('Registering student...');
-    try {
-      const payload = { ...studentData, image: imgSrc };
-      await axios.post('http://localhost:5000/api/attendance/register-student', payload);
-      setStudentModalMsg('Student registered successfully!');
-      setTimeout(() => {
-        setShowStudentModal(false);
-        setStudentData({ name: '', email: '', password: '', rollId: '', department: '', year: '' });
-        setImgSrc(null);
-        setUseWebcam(false);
-        setStudentModalMsg('');
-        fetchStats(); 
-        fetchStudents();
-      }, 2000);
-    } catch (error) {
-      setStudentModalMsg(error.response?.data?.message || 'Failed to register student');
-    }
-  };
 
   return (
     <div className="ap-container">
@@ -138,9 +101,9 @@ const Admin = () => {
           <button className="ap-add-teacher-btn" onClick={() => setShowTeacherModal(true)}>
             <FiPlus /> Add Teacher
           </button>
-          <button className="ap-add-student-btn" onClick={() => setShowStudentModal(true)}>
+          <Link to="/registration" className="ap-add-student-btn" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FiPlus /> Add Student
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -346,72 +309,7 @@ const Admin = () => {
         </div>
       )}
 
-      {showStudentModal && (
-        <div className="ap-modal-overlay">
-          <div className="ap-modal" style={{width: '500px', maxHeight: '90vh', overflowY: 'auto'}}>
-            <h2>Register New Student</h2>
-            <form onSubmit={handleRegisterStudent}>
-              <div style={{display: 'flex', gap: '1rem', marginBottom: '1rem'}}>
-                <div className="ap-form-group" style={{flex: 1, marginBottom: 0}}>
-                  <label>Name</label>
-                  <input required type="text" value={studentData.name} onChange={e => setStudentData({...studentData, name: e.target.value})} />
-                </div>
-                <div className="ap-form-group" style={{flex: 1, marginBottom: 0}}>
-                  <label>Roll ID</label>
-                  <input required type="text" value={studentData.rollId} onChange={e => setStudentData({...studentData, rollId: e.target.value})} />
-                </div>
-              </div>
-              
-              <div style={{display: 'flex', gap: '1rem', marginBottom: '1rem'}}>
-                <div className="ap-form-group" style={{flex: 1, marginBottom: 0}}>
-                  <label>Email</label>
-                  <input required type="email" value={studentData.email} onChange={e => setStudentData({...studentData, email: e.target.value})} />
-                </div>
-                <div className="ap-form-group" style={{flex: 1, marginBottom: 0}}>
-                  <label>Password</label>
-                  <input required type="password" value={studentData.password} onChange={e => setStudentData({...studentData, password: e.target.value})} />
-                </div>
-              </div>
 
-              <div style={{display: 'flex', gap: '1rem', marginBottom: '1rem'}}>
-                <div className="ap-form-group" style={{flex: 1, marginBottom: 0}}>
-                  <label>Department</label>
-                  <input required type="text" value={studentData.department} onChange={e => setStudentData({...studentData, department: e.target.value})} />
-                </div>
-                <div className="ap-form-group" style={{flex: 1, marginBottom: 0}}>
-                  <label>Year</label>
-                  <input required type="text" value={studentData.year} onChange={e => setStudentData({...studentData, year: e.target.value})} />
-                </div>
-              </div>
-
-              <div className="ap-form-group">
-                <label>Face Capture</label>
-                {!useWebcam && !imgSrc ? (
-                  <button type="button" style={{width: '100%', padding: '0.75rem', background: '#232530', border: '1px dashed rgba(255,255,255,0.2)', color: '#94a3b8', borderRadius: '0.5rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem'}} onClick={() => setUseWebcam(true)}>
-                    <FiCamera /> Open Camera to Capture Face
-                  </button>
-                ) : useWebcam && !imgSrc ? (
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                    <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" style={{width: '100%', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.1)'}} />
-                    <button type="button" style={{padding: '0.5rem', background: '#0891b2', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer'}} onClick={capture}>Capture Photo</button>
-                  </div>
-                ) : (
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
-                    <img src={imgSrc} alt="Captured face" style={{width: '100%', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.1)'}} />
-                    <button type="button" style={{padding: '0.5rem', background: '#0891b2', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer'}} onClick={() => setImgSrc(null)}>Retake Photo</button>
-                  </div>
-                )}
-              </div>
-
-              <div className="ap-modal-actions">
-                <button type="button" className="ap-cancel-btn" onClick={() => {setShowStudentModal(false); setImgSrc(null); setUseWebcam(false);}}>Cancel</button>
-                <button type="submit" className="ap-submit-btn">Register</button>
-              </div>
-              {studentModalMsg && <p className="ap-modal-msg">{studentModalMsg}</p>}
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

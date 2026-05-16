@@ -7,7 +7,10 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   rollId: { type: String },
   department: { type: String },
-  year: { type: String }
+  year: { type: String },
+  face_descriptor: { type: [Number] },
+  face_image_url: { type: String },
+  is_registered: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

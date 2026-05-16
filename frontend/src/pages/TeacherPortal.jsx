@@ -14,16 +14,6 @@ const Teacher = () => {
   const [students, setStudents] = useState([]);
   const [allStudents, setAllStudents] = useState([]);
   const [stats, setStats] = useState({ defaultersList: [] }); // Reusing admin dashboard data for analytics tab
-  
-  // Register Student Modal State
-  const [showModal, setShowModal] = useState(false);
-  const [studentData, setStudentData] = useState({ name: '', email: '', password: '', rollId: '', department: '', year: '' });
-  const [modalMsg, setModalMsg] = useState('');
-  
-  // Webcam state for registration
-  const webcamRef = useRef(null);
-  const [imgSrc, setImgSrc] = useState(null);
-  const [useWebcam, setUseWebcam] = useState(false);
 
   const fetchDashboardData = async () => {
     try {
@@ -72,37 +62,7 @@ const Teacher = () => {
     return () => clearInterval(intervalId);
   }, [activeTab]);
 
-  const capture = () => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setImgSrc(imageSrc);
-    }
-  };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (!imgSrc) {
-      setModalMsg('Please capture a face image first!');
-      return;
-    }
-    setModalMsg('Registering student...');
-    try {
-      const payload = { ...studentData, image: imgSrc };
-      await axios.post('http://localhost:5000/api/attendance/register-student', payload);
-      setModalMsg('Student registered successfully!');
-      setTimeout(() => {
-        setShowModal(false);
-        setStudentData({ name: '', email: '', password: '', rollId: '', department: '', year: '' });
-        setImgSrc(null);
-        setUseWebcam(false);
-        setModalMsg('');
-        fetchDashboardData(); 
-        fetchAllStudents();
-      }, 2000);
-    } catch (error) {
-      setModalMsg(error.response?.data?.message || 'Failed to register student');
-    }
-  };
 
   const presentCount = students.filter(s => s.status === 'Present').length;
 
@@ -119,7 +79,7 @@ const Teacher = () => {
           </div>
         </div>
         <div className="tp-header-right">
-          <button className="tp-register-btn" onClick={() => setShowModal(true)}><FiUserPlus /> Register Student</button>
+          <Link to="/registration" className="tp-register-btn" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FiUserPlus /> Register Student</Link>
         </div>
       </header>
 
@@ -279,72 +239,7 @@ const Teacher = () => {
         </>
       )}
 
-      {showModal && (
-        <div className="tp-modal-overlay">
-          <div className="tp-modal">
-            <h2>Register New Student</h2>
-            <form onSubmit={handleRegister}>
-              <div className="tp-form-row">
-                <div className="tp-form-group">
-                  <label>Name</label>
-                  <input required type="text" value={studentData.name} onChange={e => setStudentData({...studentData, name: e.target.value})} />
-                </div>
-                <div className="tp-form-group">
-                  <label>Roll ID</label>
-                  <input required type="text" value={studentData.rollId} onChange={e => setStudentData({...studentData, rollId: e.target.value})} />
-                </div>
-              </div>
-              
-              <div className="tp-form-row">
-                <div className="tp-form-group">
-                  <label>Email</label>
-                  <input required type="email" value={studentData.email} onChange={e => setStudentData({...studentData, email: e.target.value})} />
-                </div>
-                <div className="tp-form-group">
-                  <label>Password</label>
-                  <input required type="password" value={studentData.password} onChange={e => setStudentData({...studentData, password: e.target.value})} />
-                </div>
-              </div>
 
-              <div className="tp-form-row">
-                <div className="tp-form-group">
-                  <label>Department</label>
-                  <input required type="text" value={studentData.department} onChange={e => setStudentData({...studentData, department: e.target.value})} />
-                </div>
-                <div className="tp-form-group">
-                  <label>Year</label>
-                  <input required type="text" value={studentData.year} onChange={e => setStudentData({...studentData, year: e.target.value})} />
-                </div>
-              </div>
-
-              <div className="tp-form-group">
-                <label>Face Capture</label>
-                {!useWebcam && !imgSrc ? (
-                  <button type="button" className="tp-cam-btn" onClick={() => setUseWebcam(true)}>
-                    <FiCamera /> Open Camera to Capture Face
-                  </button>
-                ) : useWebcam && !imgSrc ? (
-                  <div className="tp-cam-container">
-                    <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" className="tp-webcam-preview" />
-                    <button type="button" className="tp-cam-capture-btn" onClick={capture}>Capture Photo</button>
-                  </div>
-                ) : (
-                  <div className="tp-cam-container">
-                    <img src={imgSrc} alt="Captured face" className="tp-webcam-preview" />
-                    <button type="button" className="tp-cam-retake-btn" onClick={() => setImgSrc(null)}>Retake Photo</button>
-                  </div>
-                )}
-              </div>
-
-              <div className="tp-modal-actions">
-                <button type="button" className="tp-cancel-btn" onClick={() => {setShowModal(false); setImgSrc(null); setUseWebcam(false);}}>Cancel</button>
-                <button type="submit" className="tp-submit-btn">Register</button>
-              </div>
-              {modalMsg && <p className="tp-modal-msg">{modalMsg}</p>}
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
