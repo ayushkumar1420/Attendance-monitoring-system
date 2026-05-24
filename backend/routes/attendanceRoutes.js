@@ -6,21 +6,6 @@ const { spawn } = require('child_process');
 const User = require('../models/User');
 const Attendance = require('../models/Attendance');
 
-// Mock data initialization for testing if DB is empty
-const initializeMockData = async () => {
-  const count = await User.countDocuments();
-  if (count === 0) {
-    const mockStudents = [
-      { name: 'John Doe', role: 'student', email: 'john@example.com', password: 'password123' },
-      { name: 'Jane Smith', role: 'student', email: 'jane@example.com', password: 'password123' },
-      { name: 'Mike Ross', role: 'student', email: 'mike@example.com', password: 'password123' }
-    ];
-    await User.insertMany(mockStudents);
-    console.log('Mock students initialized');
-  }
-};
-initializeMockData();
-
 // Endpoint to handle attendance marking via face recognition
 router.post('/mark', async (req, res) => {
   try {
@@ -69,10 +54,40 @@ router.post('/mark', async (req, res) => {
   }
 });
 
+// Helper function to calculate real defaulters (Attendance < 75%)
+const getDefaulters = async (students) => {
+  // To calculate a true percentage, we need to know "Total Working Days".
+  // For this demo, let's dynamically determine total working days 
+  // as the number of unique days *any* attendance was marked.
+  const uniqueDates = await Attendance.distinct('date');
+  const totalDays = uniqueDates.length || 1; // avoid division by 0
+  
+  const defaultersList = [];
+
+  for (const student of students) {
+    const presentDays = await Attendance.countDocuments({ student: student._id });
+    const percentage = Math.round((presentDays / totalDays) * 100);
+
+    if (percentage < 75) {
+      defaultersList.push({
+        id: student._id,
+        initials: student.name.charAt(0).toUpperCase(),
+        name: student.name,
+        dept: student.department || 'N/A',
+        presentDays,
+        totalDays,
+        percentage
+      });
+    }
+  }
+  return defaultersList;
+};
+
 // Endpoint for Teacher Analytics
 router.get('/analytics', async (req, res) => {
   try {
-    const totalStudents = await User.countDocuments({ role: 'student' });
+    const students = await User.find({ role: 'student' });
+    const totalStudents = students.length;
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -82,12 +97,7 @@ router.get('/analytics', async (req, res) => {
       status: 'present'
     });
 
-    // Mock defaulters for now
-    const defaulters = [
-      { id: 101, name: 'Alex Johnson', percentage: 65, lastAttended: '2026-05-10' },
-      { id: 102, name: 'Emily Davis', percentage: 70, lastAttended: '2026-05-12' },
-      { id: 103, name: 'Chris Wilson', percentage: 60, lastAttended: '2026-05-08' }
-    ];
+    const defaulters = await getDefaulters(students);
 
     res.json({
       analytics: {
@@ -206,35 +216,6 @@ router.get('/teacher-dashboard', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-// Helper function to calculate real defaulters (Attendance < 75%)
-const getDefaulters = async (students) => {
-  // To calculate a true percentage, we need to know "Total Working Days".
-  // For this demo, let's dynamically determine total working days 
-  // as the number of unique days *any* attendance was marked.
-  const uniqueDates = await Attendance.distinct('date');
-  const totalDays = uniqueDates.length || 1; // avoid division by 0
-  
-  const defaultersList = [];
-
-  for (const student of students) {
-    const presentDays = await Attendance.countDocuments({ student: student._id });
-    const percentage = Math.round((presentDays / totalDays) * 100);
-
-    if (percentage < 75) {
-      defaultersList.push({
-        id: student._id,
-        initials: student.name.charAt(0).toUpperCase(),
-        name: student.name,
-        dept: student.department || 'N/A',
-        presentDays,
-        totalDays,
-        percentage
-      });
-    }
-  }
-  return defaultersList;
-};
 
 // Endpoint for Admin Dashboard
 router.get('/admin-dashboard', async (req, res) => {

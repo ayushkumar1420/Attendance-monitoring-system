@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import Webcam from 'react-webcam';
-import { FiArrowLeft, FiRefreshCw, FiCheckCircle, FiUsers, FiBarChart2, FiSearch, FiCalendar, FiChevronDown, FiUserPlus, FiCamera, FiAlertTriangle, FiTrash2 } from "react-icons/fi";
+import { FiArrowLeft, FiCheckCircle, FiUsers, FiBarChart2, FiSearch, FiChevronDown, FiUserPlus, FiAlertTriangle, FiTrash2 } from "react-icons/fi";
 import { HiOutlineTemplate } from "react-icons/hi";
 import './teacher.css';
 
@@ -238,7 +237,7 @@ const Teacher = () => {
                 </thead>
                 <tbody>
                   {allStudents.length === 0 ? (
-                    <tr><td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>No students registered yet.</td></tr>
+                    <tr><td colSpan="6" style={{textAlign: 'center', padding: '2rem'}}>No student registered yet, register students now.</td></tr>
                   ) : (
                     allStudents.map(student => (
                       <tr key={student._id}>
