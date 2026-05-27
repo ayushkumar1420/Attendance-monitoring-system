@@ -9,7 +9,6 @@ const RoleCards = () => {
   return (
     <div className='roles'>
       <div className='card student-card'>
-        <div className='card-icon'>🎓</div>
         <div className='card-pill student-pill'>
           <IoMdEye /> <span>Mark your attendance</span>
         </div>
@@ -25,7 +24,6 @@ const RoleCards = () => {
       </div>
 
       <div className='card teacher-card'>
-        <div className='card-icon'>📚</div>
         <div className='card-pill teacher-pill'>
           <HiOutlineOfficeBuilding /> <span>Manage your class</span>
         </div>
@@ -41,7 +39,6 @@ const RoleCards = () => {
       </div>
 
       <div className='card admin-card'>
-        <div className='card-icon'>⚡</div>
         <div className='card-pill admin-pill'>
           <AiOutlineSetting /> <span>Full system control</span>
         </div>
