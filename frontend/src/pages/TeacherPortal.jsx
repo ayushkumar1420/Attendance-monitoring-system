@@ -157,11 +157,11 @@ const Teacher = () => {
                   </div>
                   <div className="tp-filter-item">
                     <select value={selectedYear} onChange={e => setSelectedYear(e.target.value)} style={{ background: 'transparent', border: 'none', color: 'inherit', outline: 'none', appearance: 'none', paddingRight: '1rem', cursor: 'pointer' }}>
-                      <option value="All" style={{color: '#000'}}>All Years</option>
-                      <option value="1st" style={{color: '#000'}}>1st</option>
-                      <option value="2nd" style={{color: '#000'}}>2nd</option>
-                      <option value="3rd" style={{color: '#000'}}>3rd</option>
-                      <option value="4th" style={{color: '#000'}}>4th</option>
+                      <option value="All" >All Years</option>
+                      <option value="1st" >1st</option>
+                      <option value="2nd" >2nd</option>
+                      <option value="3rd" >3rd</option>
+                      <option value="4th" >4th</option>
                     </select>
                     <FiChevronDown style={{marginLeft: '-1rem', pointerEvents: 'none'}} />
                   </div>
