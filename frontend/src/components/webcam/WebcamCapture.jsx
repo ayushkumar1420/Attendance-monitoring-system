@@ -54,6 +54,7 @@ const WebcamCapture = forwardRef(({ statusText = '' }, ref) => {
         setStatus('active');
       }
     } catch (err) {
+      console.error('Retry error accessing webcam:', err);
       setStatus('error');
     }
   };
