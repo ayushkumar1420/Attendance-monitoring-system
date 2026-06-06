@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { FiArrowLeft, FiCamera, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import WebcamCapture from '../components/webcam/WebcamCapture';
 import { loadFaceModels, detectFaceDescriptor, findBestMatch } from '../components/face/FaceDetectionEngine';
@@ -21,8 +21,8 @@ const StudentPortal = () => {
   const fetchDashboardData = async () => {
     try {
       const [studentsRes, recordsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/attendance/students'),
-        axios.get('http://localhost:5000/api/attendance/records')
+        api.get('/api/attendance/students'),
+        api.get('/api/attendance/records')
       ]);
       setAllStudents(studentsRes.data);
       setRecords(recordsRes.data);
@@ -83,7 +83,7 @@ const StudentPortal = () => {
                   confidence: match.confidence,
                   method: 'face_recognition'
                 };
-                const res = await axios.post('http://localhost:5000/api/attendance/mark', payload);
+                const res = await api.post('/api/attendance/mark', payload);
                 setMatchResult({ success: true, message: res.data.message });
                 // refresh records
                 fetchDashboardData();

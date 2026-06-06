@@ -7,11 +7,11 @@ import { RiSecurePaymentFill } from "react-icons/ri";
 
 const Home = () => {
   return (
-    <div class="ctn-1">
+    <div className="ctn-1">
       <div className="badge">
-        <span class="icon">⚡</span>
+        <span className="icon">⚡</span>
         <span>AI-Powered Attendance System</span>
-        <span class="icon">✨</span>
+        <span className="icon">✨</span>
       </div>
 
       <h1 className='head'>
@@ -21,7 +21,9 @@ const Home = () => {
       <p className='para'>Face Recognition · Real-time Analytics · Smart Tracking</p>
       <p className='option'>Select your role to continue</p>
 
+
       <RoleCards />
+
       <footer className='footer'>
         <div className='footer-element'>
           <span className='footer-icon'><RiVoiceRecognitionLine /></span>

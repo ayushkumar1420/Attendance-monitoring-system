@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import WebcamCapture from '../components/webcam/WebcamCapture';
 import { loadFaceModels, detectFaceDescriptor } from '../components/face/FaceDetectionEngine';
 import './Registration.css';
@@ -90,7 +90,7 @@ const Registration = () => {
         face_descriptor: faceDescriptor,
         face_image_url: faceImage // Saving base64 as URL string for this demo
       };
-      await axios.post('http://localhost:5000/api/attendance/register-student', payload);
+      await api.post('/api/attendance/register-student', payload);
       alert('Registration successful!');
       navigate('/admin');
     } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { FiArrowLeft, FiCheckCircle, FiUsers, FiBarChart2, FiSearch, FiChevronDown, FiUserPlus, FiAlertTriangle, FiTrash2 } from "react-icons/fi";
 import { HiOutlineTemplate } from "react-icons/hi";
 import './teacher.css';
@@ -22,7 +22,7 @@ const Teacher = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/attendance/teacher-dashboard?date=${selectedDate}`);
+      const res = await api.get(`/api/attendance/teacher-dashboard?date=${selectedDate}`);
       setStudents(res.data);
     } catch (error) {
       console.error('Failed to fetch dashboard', error);
@@ -32,7 +32,7 @@ const Teacher = () => {
   const handleDeleteStudent = async (id) => {
     if (window.confirm('Are you sure you want to delete this student and all their attendance records? This action cannot be undone.')) {
       try {
-        await axios.delete(`http://localhost:5000/api/attendance/user/${id}`);
+        await api.delete(`/api/attendance/user/${id}`);
         // Remove locally without refreshing
         setAllStudents(prev => prev.filter(s => s._id !== id));
         setStudents(prev => prev.filter(s => s.id !== id)); // updates dashboard tab too
@@ -44,7 +44,7 @@ const Teacher = () => {
 
   const fetchAllStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/attendance/students');
+      const res = await api.get('/api/attendance/students');
       setAllStudents(res.data);
     } catch (error) {
       console.error('Failed to fetch students', error);
@@ -54,7 +54,7 @@ const Teacher = () => {
   const fetchAnalytics = async () => {
     try {
       // Reusing the admin dashboard endpoint to get the real defaulters list for the teacher's analytics tab
-      const res = await axios.get('http://localhost:5000/api/attendance/admin-dashboard');
+      const res = await api.get('/api/attendance/admin-dashboard');
       setStats(res.data);
     } catch (error) {
       console.error('Failed to fetch analytics', error);

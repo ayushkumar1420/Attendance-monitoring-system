@@ -16,7 +16,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Database Connection
-mongoose.connect('mongodb://127.0.0.1:27017/attendance')
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/attendance';
+mongoose.connect(mongoURI)
   .then(() => console.log('MongoDB Connected'))
   .catch(err => console.log('MongoDB Connection Error: ', err));
 

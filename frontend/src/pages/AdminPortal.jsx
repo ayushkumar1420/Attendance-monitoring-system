@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { FiArrowLeft, FiUsers, FiUserCheck, FiUserX, FiAlertTriangle, FiPlus, FiBookOpen, FiTrash2 } from "react-icons/fi";
 import { BsLightningFill } from "react-icons/bs";
 import { HiOutlineChartBar } from "react-icons/hi";
@@ -25,7 +25,7 @@ const Admin = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/attendance/admin-dashboard');
+      const res = await api.get('/api/attendance/admin-dashboard');
       setStats(res.data);
     } catch (error) {
       console.error('Failed to fetch admin stats', error);
@@ -34,7 +34,7 @@ const Admin = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/attendance/students');
+      const res = await api.get('/api/attendance/students');
       setAllStudents(res.data);
     } catch (error) {
       console.error('Failed to fetch students', error);
@@ -43,7 +43,7 @@ const Admin = () => {
 
   const fetchRecords = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/attendance/records');
+      const res = await api.get('/api/attendance/records');
       setAllRecords(res.data);
     } catch (error) {
       console.error('Failed to fetch records', error);
@@ -52,7 +52,7 @@ const Admin = () => {
 
   const fetchTeachers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/attendance/teachers');
+      const res = await api.get('/api/attendance/teachers');
       setAllTeachers(res.data);
     } catch (error) {
       console.error('Failed to fetch teachers', error);
@@ -62,7 +62,7 @@ const Admin = () => {
   const handleDeleteUser = async (id, role) => {
     if (window.confirm(`Are you sure you want to delete this ${role}? This action cannot be undone.`)) {
       try {
-        await axios.delete(`http://localhost:5000/api/attendance/user/${id}`);
+        await api.delete(`/api/attendance/user/${id}`);
         if (role === 'student') {
           setAllStudents(prev => prev.filter(s => s._id !== id));
           fetchStats(); // Update dashboard counts
@@ -100,7 +100,7 @@ const Admin = () => {
     e.preventDefault();
     setModalMessage('Registering...');
     try {
-      await axios.post('http://localhost:5000/api/attendance/register-teacher', teacherData);
+      await api.post('/api/attendance/register-teacher', teacherData);
       setModalMessage('Teacher registered successfully!');
       setTeacherData({ name: '', email: '', password: '' });
       setTimeout(() => { setShowTeacherModal(false); setModalMessage(''); }, 2000);

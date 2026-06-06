@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Attendance = require('../models/Attendance');
 
@@ -124,10 +122,13 @@ router.post('/register-teacher', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const newTeacher = new User({
       name,
       email,
-      password, // In a real app, hash the password
+      password: hashedPassword,
       role: 'teacher'
     });
 
@@ -150,10 +151,13 @@ router.post('/register-student', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     const newStudent = new User({
       name,
       email,
-      password, // In a real app, hash the password
+      password: hashedPassword,
       role: 'student',
       rollId,
       department,
@@ -236,12 +240,7 @@ router.get('/admin-dashboard', async (req, res) => {
     const presentRate = total === 0 ? 0 : Math.round((present / total) * 100);
 
     // Get number of students with registered faces
-    const facesDir = path.join(__dirname, '../faces');
-    let faceRegistered = 0;
-    if (fs.existsSync(facesDir)) {
-      const files = fs.readdirSync(facesDir);
-      faceRegistered = files.filter(f => f.endsWith('.jpg')).length;
-    }
+    const faceRegistered = students.filter(s => s.is_registered).length;
 
     // Determine Defaulters (Attendance < 75%)
     const defaultersList = await getDefaulters(students);
