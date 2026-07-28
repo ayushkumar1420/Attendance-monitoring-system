@@ -1,13 +1,20 @@
-import React from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname;
+  const { user, logout } = useContext(AuthContext);
 
-  // Determine if the current page is a "Portal" page
   const isPortalPage = ['/', '/student', '/teacher', '/admin'].includes(path);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <div className="layout-container">
@@ -17,8 +24,16 @@ const Layout = ({ children }) => {
             <Link to="/">⚡ CampusConnect</Link>
           </div>
           <div className="nav-links">
-            <Link to="/registration">Register</Link>
-            <Link to="/dashboard">Dashboard</Link>
+            {!user ? (
+              <>
+                <Link to="/registration">Register</Link>
+              </>
+            ) : (
+              <>
+                <Link to={`/${user.role}`}>Dashboard</Link>
+                <button onClick={handleLogout} className="logout-btn" style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
+              </>
+            )}
           </div>
         </nav>
       )}

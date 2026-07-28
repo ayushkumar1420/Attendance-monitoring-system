@@ -1,22 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import WebcamCapture from '../components/webcam/WebcamCapture';
 import { loadFaceModels, detectFaceDescriptor } from '../components/face/FaceDetectionEngine';
+import { AuthContext } from '../context/AuthContext';
 import './Registration.css';
 
 const Registration = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [step, setStep] = useState(1);
   const [loadingModels, setLoadingModels] = useState(true);
   
   const [formData, setFormData] = useState({
     name: '',
-    rollId: '',
+    collegeId: '',
     email: '',
     department: 'CS',
-    year: '1st',
-    password: 'password123' // default for simplicity
+    semester: '1st',
+    section: 'A',
+    password: 'password123' 
   });
 
   const [faceDescriptor, setFaceDescriptor] = useState(null);
@@ -49,7 +52,7 @@ const Registration = () => {
     setScanProgress(0);
     
     let attempts = 0;
-    const maxAttempts = 20; // Try for 20 frames
+    const maxAttempts = 20; 
     
     const scanInterval = setInterval(async () => {
       attempts++;
@@ -63,7 +66,6 @@ const Registration = () => {
             clearInterval(scanInterval);
             const imageStr = webcamRef.current.captureFrame();
             setFaceImage(imageStr);
-            // descriptor is Float32Array, convert to Array to store in state/send via JSON
             setFaceDescriptor(Array.from(descriptor));
             setScanning(false);
             setScanProgress(100);
@@ -88,11 +90,12 @@ const Registration = () => {
       const payload = {
         ...formData,
         face_descriptor: faceDescriptor,
-        face_image_url: faceImage // Saving base64 as URL string for this demo
+        face_image_url: faceImage 
       };
-      await api.post('/api/attendance/register-student', payload);
+      const res = await api.post('/api/auth/student/signup', payload);
       alert('Registration successful!');
-      navigate('/admin');
+      login(res.data.token, res.data.user);
+      navigate('/student');
     } catch (error) {
       setSubmitError(error.response?.data?.message || 'Failed to register student');
     }
@@ -118,8 +121,8 @@ const Registration = () => {
             </div>
             <div className="form-row">
               <div className="form-group">
-                <label>Roll ID</label>
-                <input required type="text" value={formData.rollId} onChange={e => setFormData({...formData, rollId: e.target.value})} />
+                <label>College ID</label>
+                <input required type="text" value={formData.collegeId} onChange={e => setFormData({...formData, collegeId: e.target.value})} />
               </div>
               <div className="form-group">
                 <label>Email</label>
@@ -128,6 +131,10 @@ const Registration = () => {
             </div>
             <div className="form-row">
               <div className="form-group">
+                <label>Password</label>
+                <input required type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+              </div>
+              <div className="form-group">
                 <label>Department</label>
                 <select value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})}>
                   <option value="CS">Computer Science</option>
@@ -135,14 +142,20 @@ const Registration = () => {
                   <option value="EE">Electrical</option>
                 </select>
               </div>
+            </div>
+            <div className="form-row">
               <div className="form-group">
-                <label>Year</label>
-                <select value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
-                  <option value="1st">1st Year</option>
-                  <option value="2nd">2nd Year</option>
-                  <option value="3rd">3rd Year</option>
-                  <option value="4th">4th Year</option>
+                <label>Semester</label>
+                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})}>
+                  <option value="1st">1st Semester</option>
+                  <option value="2nd">2nd Semester</option>
+                  <option value="3rd">3rd Semester</option>
+                  <option value="4th">4th Semester</option>
                 </select>
+              </div>
+              <div className="form-group">
+                <label>Section</label>
+                <input required type="text" value={formData.section} onChange={e => setFormData({...formData, section: e.target.value})} />
               </div>
             </div>
             <div className="reg-actions">
@@ -185,9 +198,9 @@ const Registration = () => {
               </div>
               <div className="review-details">
                 <h3>{formData.name}</h3>
-                <p><strong>Roll ID:</strong> {formData.rollId}</p>
+                <p><strong>College ID:</strong> {formData.collegeId}</p>
                 <p><strong>Email:</strong> {formData.email}</p>
-                <p><strong>Dept:</strong> {formData.department} ({formData.year})</p>
+                <p><strong>Dept:</strong> {formData.department} ({formData.semester})</p>
                 {submitError && <p className="error-text">{submitError}</p>}
               </div>
             </div>

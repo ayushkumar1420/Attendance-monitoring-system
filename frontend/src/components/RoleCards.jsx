@@ -17,7 +17,7 @@ const RoleCards = () => {
           Use facial recognition to mark your daily attendance instantly. Check your attendance history and percentage.
         </p>
         <div className='card-footer'>
-          <Link to="/student" className='student-enter-portal-btn' style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <Link to="/auth/student-login" className='student-enter-portal-btn' style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
             Enter Portal <FiArrowRight /> 
           </Link> 
         </div>
@@ -32,7 +32,7 @@ const RoleCards = () => {
           View attendance records, register new students, manage class rosters, and track student performance.
         </p>
         <div className='card-footer'>
-          <Link to="/teacher" className='teacher-enter-portal-btn' style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <Link to="/auth/teacher-login" className='teacher-enter-portal-btn' style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
             Enter Portal  <FiArrowRight />
           </Link> 
         </div>
@@ -47,7 +47,7 @@ const RoleCards = () => {
           Manage all students, teachers, departments. View analytics, control access, and monitor the entire system.
         </p>
         <div className='card-footer'>
-          <Link to="/admin" className='admin-enter-portal-btn' style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <Link to="/auth/admin-login" className='admin-enter-portal-btn' style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
             Enter Portal   <FiArrowRight /> 
           </Link>
         </div>

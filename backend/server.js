@@ -22,6 +22,11 @@ mongoose.connect(mongoURI)
   .catch(err => console.log('MongoDB Connection Error: ', err));
 
 // Routes
+const authRoutes = require('./routes/authRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+
+app.use('/api/auth', authRoutes);
+app.use('/api', dashboardRoutes);
 app.use('/api/attendance', attendanceRoutes);
 
 // Health check

@@ -1,31 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import { FiArrowLeft, FiCamera, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import WebcamCapture from '../components/webcam/WebcamCapture';
 import { loadFaceModels, detectFaceDescriptor, findBestMatch } from '../components/face/FaceDetectionEngine';
+import { AuthContext } from '../context/AuthContext';
 import './StudentPortal.css';
 
 const StudentPortal = () => {
+  const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [scanMessage, setScanMessage] = useState('Click "Start Face Scan" to mark attendance');
-  const [matchResult, setMatchResult] = useState(null); // { success: true/false, message: '' }
+  const [matchResult, setMatchResult] = useState(null); 
   
-  const [allStudents, setAllStudents] = useState([]);
-  const [records, setRecords] = useState([]);
+  const [dashboardData, setDashboardData] = useState(null);
   
   const webcamRef = useRef(null);
   const scanIntervalRef = useRef(null);
 
   const fetchDashboardData = async () => {
     try {
-      const [studentsRes, recordsRes] = await Promise.all([
-        api.get('/api/attendance/students'),
-        api.get('/api/attendance/records')
-      ]);
-      setAllStudents(studentsRes.data);
-      setRecords(recordsRes.data);
+      const res = await api.get('/api/student');
+      setDashboardData(res.data);
     } catch (error) {
       console.error('Failed to fetch data', error);
     }
@@ -55,57 +52,67 @@ const StudentPortal = () => {
     setScanMessage('Scanning...');
     setMatchResult(null);
 
-    // Filter to only registered students with face_descriptor
-    const registeredStudents = allStudents.filter(s => s.is_registered && s.face_descriptor);
-    
-    if (registeredStudents.length === 0) {
-      setScanMessage('No registered students found in database.');
-      stopScan();
-      return;
-    }
+    // We only need to check against the current logged in student
+    // So we fetch their latest info from the students API, or just use their descriptor if we passed it in dashboard
+    try {
+      // Fetch all students to use the existing logic, ideally we'd just check the current student
+      const studentsRes = await api.get('/api/attendance/students');
+      const registeredStudents = studentsRes.data.filter(s => s.is_registered && s.face_descriptor);
+      
+      if (registeredStudents.length === 0) {
+        setScanMessage('No registered students found in database.');
+        stopScan();
+        return;
+      }
 
-    scanIntervalRef.current = setInterval(async () => {
-      const video = webcamRef.current.getVideoElement();
-      if (video && video.readyState === 4) {
-        try {
-          const descriptor = await detectFaceDescriptor(video);
-          if (descriptor) {
-            const match = findBestMatch(descriptor, registeredStudents, 0.55);
-            
-            if (match) {
-              stopScan();
-              setScanMessage(`Matched: ${match.student.name} (${Math.round(match.confidence * 100)}%)`);
+      scanIntervalRef.current = setInterval(async () => {
+        const video = webcamRef.current.getVideoElement();
+        if (video && video.readyState === 4) {
+          try {
+            const descriptor = await detectFaceDescriptor(video);
+            if (descriptor) {
+              const match = findBestMatch(descriptor, registeredStudents, 0.55);
               
-              // Mark attendance in DB
-              try {
-                const payload = {
-                  studentId: match.student._id,
-                  confidence: match.confidence,
-                  method: 'face_recognition'
-                };
-                const res = await api.post('/api/attendance/mark', payload);
-                setMatchResult({ success: true, message: res.data.message });
-                // refresh records
-                fetchDashboardData();
-              } catch (err) {
-                setMatchResult({ success: false, message: err.response?.data?.message || 'Failed to mark' });
+              if (match) {
+                // Ensure the matched face is the logged in user
+                if (match.student._id !== user.id) {
+                  setScanMessage(`Face matched to another student: ${match.student.name}. Please scan your own face.`);
+                  return;
+                }
+
+                stopScan();
+                setScanMessage(`Matched: ${match.student.name} (${Math.round(match.confidence * 100)}%)`);
+                
+                // Mark attendance in DB
+                try {
+                  const payload = {
+                    studentId: match.student._id,
+                    confidence: match.confidence,
+                    method: 'face_recognition'
+                  };
+                  const res = await api.post('/api/attendance/mark', payload);
+                  setMatchResult({ success: true, message: res.data.message });
+                  fetchDashboardData(); // Refresh dashboard
+                } catch (err) {
+                  setMatchResult({ success: false, message: err.response?.data?.message || 'Failed to mark' });
+                }
+              } else {
+                setScanMessage('Face detected but not recognized.');
               }
             } else {
-              setScanMessage('Face detected but not recognized.');
+              setScanMessage('No face detected. Please look at the camera.');
             }
-          } else {
-            setScanMessage('No face detected. Please look at the camera.');
+          } catch (e) {
+            console.error("Detection error:", e);
           }
-        } catch (e) {
-          console.error("Detection error:", e);
         }
-      }
-    }, 1200); // Poll every 1.2s
+      }, 1200); 
+    } catch(err) {
+      console.error(err);
+      setScanMessage('Error fetching face data.');
+      stopScan();
+    }
   };
-
-  const today = new Date().toISOString().split('T')[0];
-  const presentTodayRecords = records.filter(r => r.date.startsWith(today) && r.status === 'present');
-  const presentCount = presentTodayRecords.length;
 
   return (
     <div className="sp-container">
@@ -114,13 +121,13 @@ const StudentPortal = () => {
           <Link to="/" className="sp-back-btn"><FiArrowLeft /></Link>
           <div className="sp-title-area">
             <h1 className="sp-title"><FiCamera className="sp-icon" /> Student Face Attendance</h1>
-            <p className="sp-subtitle">Mark your attendance via real-time face recognition</p>
+            <p className="sp-subtitle">Welcome, {user?.name}</p>
           </div>
         </div>
       </header>
 
       {loading ? (
-        <div className="sp-loading">Loading AI Models & Data...</div>
+        <div className="sp-loading">Loading Dashboard...</div>
       ) : (
         <div className="sp-content">
           <div className="sp-main-panel">
@@ -149,25 +156,30 @@ const StudentPortal = () => {
 
           <div className="sp-side-panel">
             <div className="sp-stats-card">
-              <h3>Today's Overview</h3>
-              <div className="sp-stat-big">
-                <span className="sp-stat-val">{presentCount}</span>
-                <span className="sp-stat-label">Present Today</span>
+              <h3>My Dashboard</h3>
+              <div className="sp-stat-big" style={{marginTop: '20px'}}>
+                <span className="sp-stat-val">{dashboardData?.attendancePercentage}%</span>
+                <span className="sp-stat-label">Total Attendance</span>
+              </div>
+              <div className="sp-stat-big" style={{marginTop: '20px'}}>
+                <span className="sp-stat-val" style={{fontSize: '1.5rem', color: dashboardData?.todayStatus === 'present' ? '#10b981' : '#ef4444'}}>
+                  {dashboardData?.todayStatus === 'present' ? 'Present' : 'Absent'}
+                </span>
+                <span className="sp-stat-label">Status Today</span>
               </div>
             </div>
 
             <div className="sp-list-card">
-              <h3>Present Today List</h3>
+              <h3>Recent Attendance</h3>
               <div className="sp-list">
-                {presentTodayRecords.length === 0 ? (
-                  <p className="sp-empty">No one marked present yet.</p>
+                {(!dashboardData?.history || dashboardData.history.length === 0) ? (
+                  <p className="sp-empty">No history available.</p>
                 ) : (
-                  presentTodayRecords.map((record, i) => (
+                  dashboardData.history.map((record, i) => (
                     <div key={i} className="sp-list-item">
-                      <div className="sp-avatar">{record.student_name.charAt(0)}</div>
-                      <div className="sp-info">
-                        <h4>{record.student_name}</h4>
-                        <p>{record.department} · {new Date(record.markedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                      <div className="sp-info" style={{marginLeft: '0'}}>
+                        <h4>{new Date(record.date).toLocaleDateString()}</h4>
+                        <p>Status: <span style={{color: record.status === 'present' ? '#10b981' : '#ef4444', fontWeight: 'bold'}}>{record.status}</span></p>
                       </div>
                     </div>
                   ))
