@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import './Layout.css';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -17,27 +16,25 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="layout-container">
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {!isPortalPage && (
-        <nav className="minimal-navbar">
-          <div className="nav-brand">
+        <nav className="navbar">
+          <div className="navbar-brand">
             <Link to="/">⚡ CampusConnect</Link>
           </div>
-          <div className="nav-links">
+          <div className="flex items-center gap-md">
             {!user ? (
-              <>
-                <Link to="/registration">Register</Link>
-              </>
+              <Link to="/registration" className="btn btn-secondary">Register</Link>
             ) : (
               <>
-                <Link to={`/${user.role}`}>Dashboard</Link>
-                <button onClick={handleLogout} className="logout-btn" style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
+                <Link to={`/${user.role}`} className="btn btn-primary">Dashboard</Link>
+                <button onClick={handleLogout} className="btn btn-danger">Logout</button>
               </>
             )}
           </div>
         </nav>
       )}
-      <main className="layout-main">
+      <main style={{ flex: 1 }}>
         {children}
       </main>
     </div>

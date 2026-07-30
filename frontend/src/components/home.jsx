@@ -1,5 +1,4 @@
-import React from 'react'
-import './home.css'
+import React from 'react';
 import RoleCards from './RoleCards';
 import { RiVoiceRecognitionLine } from "react-icons/ri";
 import { BsFillLightningChargeFill } from "react-icons/bs";
@@ -7,41 +6,46 @@ import { RiSecurePaymentFill } from "react-icons/ri";
 
 const Home = () => {
   return (
-    <div className="ctn-1">
-      <div className="badge">
-        <span className="icon">⚡</span>
-        <span>AI-Powered Attendance System</span>
-        <span className="icon">✨</span>
+    <div className="container flex flex-col items-center justify-center" style={{ minHeight: '100vh', textAlign: 'center', paddingTop: '4rem' }}>
+      <div className="glass-panel" style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', borderRadius: 'var(--radius-full)', marginBottom: '2rem' }}>
+        <span>⚡</span>
+        <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>AI-Powered Attendance System</span>
+        <span>✨</span>
       </div>
 
-      <h1 className='head'>
-        <span className="text-attend">Attend</span>
-        <span className="text-ai">AI</span>
+      <h1 style={{ fontSize: '4rem', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.1 }}>
+        <span style={{ color: 'var(--text-main)' }}>Attend</span>
+        <span className="text-gradient">AI</span>
       </h1>
-      <p className='para'>Face Recognition · Real-time Analytics · Smart Tracking</p>
-      <p className='option'>Select your role to continue</p>
-
+      
+      <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', marginBottom: '3rem', maxWidth: '600px' }}>
+        Face Recognition · Real-time Analytics · Smart Tracking
+      </p>
+      
+      <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '2rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        Select your role to continue
+      </p>
 
       <RoleCards />
 
-      <footer className='footer'>
-        <div className='footer-element'>
-          <span className='footer-icon'><RiVoiceRecognitionLine /></span>
-          <span className='ft-para'>Face Recognition</span>
+      <footer style={{ marginTop: '5rem', paddingBottom: '2rem', display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center', color: 'var(--text-muted)' }}>
+        <div className="flex items-center gap-sm">
+          <RiVoiceRecognitionLine size={20} className="text-gradient" />
+          <span>Face Recognition</span>
         </div>
-        <span className="dot">•</span>
-        <div className='footer-element'>
-          <span className='footer-icon'><BsFillLightningChargeFill /></span>
-          <span className='ft-para'>Real Time Marking</span>
+        <span style={{ color: 'var(--border-color)' }}>•</span>
+        <div className="flex items-center gap-sm">
+          <BsFillLightningChargeFill size={20} style={{ color: '#fbbf24' }} />
+          <span>Real Time Marking</span>
         </div>
-        <span className="dot">•</span>
-        <div className='footer-element'>
-          <span className='footer-icon'><RiSecurePaymentFill /></span>
-          <span className='ft-para'>Secure & Private</span>
+        <span style={{ color: 'var(--border-color)' }}>•</span>
+        <div className="flex items-center gap-sm">
+          <RiSecurePaymentFill size={20} style={{ color: '#34d399' }} />
+          <span>Secure & Private</span>
         </div>
       </footer>
     </div>
   )
 }
 
-export default Home
+export default Home;
