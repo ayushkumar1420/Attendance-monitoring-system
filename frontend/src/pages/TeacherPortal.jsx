@@ -46,7 +46,7 @@ const Teacher = () => {
     init();
     const intervalId = setInterval(() => { fetchAllData(); }, 5000);
     return () => clearInterval(intervalId);
-  }, [selectedDate]);
+  }, []);
 
   const studentsAttendanceList = students.map(student => {
     const hasAttended = records.some(r => r.student?._id === student._id && r.date.startsWith(selectedDate));

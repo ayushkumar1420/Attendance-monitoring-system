@@ -40,12 +40,12 @@ const Admin = () => {
     fetchAll();
     const intervalId = setInterval(() => {
       fetchStats();
-      if (activeTab === 'Students') fetchStudents();
-      if (activeTab === 'Records') fetchRecords();
-      if (activeTab === 'Teachers') fetchTeachers();
+      fetchStudents();
+      fetchRecords();
+      fetchTeachers();
     }, 5000);
     return () => clearInterval(intervalId);
-  }, [activeTab]);
+  }, []);
 
   const handleRegisterTeacher = async (e) => {
     e.preventDefault();

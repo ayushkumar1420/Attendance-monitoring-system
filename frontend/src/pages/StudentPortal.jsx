@@ -28,9 +28,10 @@ const StudentPortal = () => {
 
   useEffect(() => {
     const init = async () => {
-      await loadFaceModels();
       await fetchDashboardData();
       setLoading(false);
+      
+      loadFaceModels().catch(console.error);
     };
     init();
     return () => { if (scanIntervalRef.current) clearInterval(scanIntervalRef.current); };
