@@ -27,7 +27,19 @@ const AuthForm = ({ title, role, idField, idLabel, loginEndpoint, signupLink }) 
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Error during login');
+      let errorMsg = 'Error during login. Please try again.';
+      if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.response?.status === 404) {
+        errorMsg = 'Authentication service endpoint not found (404). Please verify backend server deployment.';
+      } else if (err.response?.status >= 500) {
+        errorMsg = `Server error (${err.response.status}). Please check backend logs.`;
+      } else if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+        errorMsg = 'Cannot connect to the backend server. Please ensure the server is running.';
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

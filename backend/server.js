@@ -19,9 +19,20 @@ const PORT = process.env.PORT || 5000;
 // Connect to Database
 connectDB();
 
+// Regular Middleware
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 // Security Middleware
 app.use(helmet());
-app.use(mongoSanitize());
+
+// Express 5 compatible NoSQL injection sanitization
+app.use((req, res, next) => {
+  if (req.body) req.body = mongoSanitize.sanitize(req.body);
+  if (req.params) req.params = mongoSanitize.sanitize(req.params);
+  next();
+});
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -29,11 +40,6 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use('/api/', limiter);
-
-// Regular Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 app.use('/api/auth', authRoutes);

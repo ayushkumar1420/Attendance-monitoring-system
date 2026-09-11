@@ -6,10 +6,8 @@ import StudentPortal from "./pages/StudentPortal";
 import TeacherPortal from "./pages/TeacherPortal";
 import AdminPortal from "./pages/AdminPortal";
 import Registration from "./pages/Registration";
-
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import StudentLogin from "./pages/auth/StudentLogin";
 import StudentSignup from "./pages/auth/StudentSignup";
 import TeacherLogin from "./pages/auth/TeacherLogin";

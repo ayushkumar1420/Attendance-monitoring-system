@@ -60,8 +60,12 @@ router.post('/student/signup', async (req, res) => {
 router.post('/student/login', async (req, res) => {
   try {
     const { collegeId, password } = req.body;
+    if (!collegeId || !password) {
+      return res.status(400).json({ message: 'College ID and password are required.' });
+    }
     
-    const student = await Student.findOne({ collegeId });
+    const trimmedId = collegeId.trim();
+    const student = await Student.findOne({ collegeId: trimmedId });
     if (!student) return res.status(400).json({ message: 'Invalid College ID or password.' });
 
     const isMatch = await bcrypt.compare(password, student.password);
@@ -71,7 +75,7 @@ router.post('/student/login', async (req, res) => {
     res.status(200).json({ message: 'Login successful', token, user: { id: student._id, name: student.name, role: 'student', email: student.email } });
   } catch (error) {
     console.error('Student login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ message: error.message || 'Server error during login' });
   }
 });
 
@@ -83,8 +87,12 @@ router.post('/student/login', async (req, res) => {
 router.post('/teacher/login', async (req, res) => {
   try {
     const { teacherId, password } = req.body;
+    if (!teacherId || !password) {
+      return res.status(400).json({ message: 'Teacher ID and password are required.' });
+    }
     
-    const teacher = await Teacher.findOne({ teacherId });
+    const trimmedId = teacherId.trim();
+    const teacher = await Teacher.findOne({ teacherId: trimmedId });
     if (!teacher) return res.status(400).json({ message: 'Invalid Teacher ID or password.' });
 
     const isMatch = await bcrypt.compare(password, teacher.password);
@@ -94,7 +102,7 @@ router.post('/teacher/login', async (req, res) => {
     res.status(200).json({ message: 'Login successful', token, user: { id: teacher._id, name: teacher.name, role: 'teacher', email: teacher.email } });
   } catch (error) {
     console.error('Teacher login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ message: error.message || 'Server error during login' });
   }
 });
 
@@ -106,8 +114,12 @@ router.post('/teacher/login', async (req, res) => {
 router.post('/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
     
-    const admin = await Admin.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const admin = await Admin.findOne({ email: normalizedEmail });
     if (!admin) return res.status(400).json({ message: 'Invalid Email or password.' });
 
     const isMatch = await bcrypt.compare(password, admin.password);
@@ -117,7 +129,7 @@ router.post('/admin/login', async (req, res) => {
     res.status(200).json({ message: 'Login successful', token, user: { id: admin._id, name: admin.name, role: 'admin', email: admin.email } });
   } catch (error) {
     console.error('Admin login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    res.status(500).json({ message: error.message || 'Server error during login' });
   }
 });
 
