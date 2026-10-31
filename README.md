@@ -47,6 +47,16 @@ Intelligence Attendance is a modern, full-stack Attendance Monitoring System tha
 
 ### Running Locally
 
+- **Windows (One-Click):** Double-click `dev.bat` or `start.bat` in the root folder to start both servers.
+- **Manual (Two Terminals):**
+  - Terminal 1: `cd backend && npm start`
+  - Terminal 2: `cd frontend && npm run dev`
+
+### 🔑 Default Credentials (Auto-Seeded)
+- **Admin Portal:** Email: `admin@system.com` | Password: `admin123`
+- **Teacher Portal:** Teacher ID: `T101` | Password: `teacher123`
+- **Student Portal:** College ID: `S101` | Password: `student123`
+
 1. **Start Backend Server:**
    ```bash
    cd backend
