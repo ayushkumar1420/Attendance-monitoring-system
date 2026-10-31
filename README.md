@@ -1,6 +1,6 @@
-# CampusConnect - AI Attendance System ⚡
+# Intelligence Attendance - AI Attendance System ⚡
 
-CampusConnect is a modern, full-stack Attendance Monitoring System that leverages Facial Recognition to mark attendance in real-time. It features dedicated portals for Students, Teachers, and Admins.
+Intelligence Attendance is a modern, full-stack Attendance Monitoring System that leverages Facial Recognition to mark attendance in real-time. It features dedicated portals for Students, Teachers, and Admins.
 
 ## ✨ Features
 - **Face Recognition Attendance:** Real-time AI face matching (using face-api.js).

@@ -44,7 +44,7 @@ const Teacher = () => {
   useEffect(() => {
     const init = async () => { setLoading(true); await fetchAllData(); setLoading(false); };
     init();
-    const intervalId = setInterval(() => { fetchAllData(); }, 5000);
+    const intervalId = setInterval(() => { fetchAllData(); }, 8000);
     return () => clearInterval(intervalId);
   }, []);
 

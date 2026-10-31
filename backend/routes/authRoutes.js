@@ -83,6 +83,52 @@ router.post('/student/login', async (req, res) => {
 // TEACHER AUTHENTICATION
 // ==========================================
 
+// Teacher Registration
+router.post('/teacher/register', async (req, res) => {
+  try {
+    const { name, teacherId, email, password, department } = req.body;
+    if (!name || !teacherId || !email || !password) {
+      return res.status(400).json({ message: 'Name, Teacher ID, Email, and Password are required.' });
+    }
+
+    const trimmedTeacherId = teacherId.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingTeacherId = await Teacher.findOne({ teacherId: trimmedTeacherId });
+    if (existingTeacherId) return res.status(400).json({ message: 'Teacher ID already registered.' });
+
+    const existingEmail = await Teacher.findOne({ email: normalizedEmail });
+    if (existingEmail) return res.status(400).json({ message: 'Email already registered.' });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newTeacher = new Teacher({
+      name: name.trim(),
+      teacherId: trimmedTeacherId,
+      email: normalizedEmail,
+      password: hashedPassword,
+      department: department ? department.trim() : '',
+      role: 'teacher'
+    });
+
+    await newTeacher.save();
+    res.status(201).json({
+      message: 'Teacher registered successfully',
+      teacher: {
+        id: newTeacher._id,
+        name: newTeacher.name,
+        teacherId: newTeacher.teacherId,
+        email: newTeacher.email,
+        department: newTeacher.department
+      }
+    });
+  } catch (error) {
+    console.error('Teacher registration error:', error);
+    res.status(500).json({ message: error.message || 'Server error during teacher registration' });
+  }
+});
+
 // Teacher Login
 router.post('/teacher/login', async (req, res) => {
   try {

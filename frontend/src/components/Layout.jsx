@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
       {!isPortalPage && (
         <nav className="navbar">
           <div className="navbar-brand">
-            <Link to="/">⚡ CampusConnect</Link>
+            <Link to="/">⚡ Intelligence Attendance</Link>
           </div>
           <div className="flex items-center gap-md">
             {!user ? (

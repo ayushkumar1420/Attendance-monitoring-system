@@ -14,8 +14,8 @@ const Home = () => {
       </div>
 
       <h1 style={{ fontSize: '4rem', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.1 }}>
-        <span style={{ color: 'var(--text-main)' }}>Attend</span>
-        <span className="text-gradient">AI</span>
+        <span style={{ color: 'var(--text-main)' }}>Intelligence </span>
+        <span className="text-gradient">Attendance</span>
       </h1>
       
       <p style={{ fontSize: '1.25rem', color: 'var(--text-muted)', marginBottom: '3rem', maxWidth: '600px' }}>

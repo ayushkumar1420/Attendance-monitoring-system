@@ -1,0 +1,11 @@
+{
+  "name": "intelligence-attendance",
+  "version": "1.0.0",
+  "description": "Intelligence Attendance - AI-Powered Facial Recognition Attendance Monitoring System",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build"
+  }
+}

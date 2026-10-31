@@ -43,7 +43,7 @@ const Admin = () => {
       fetchStudents();
       fetchRecords();
       fetchTeachers();
-    }, 5000);
+    }, 8000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -51,8 +51,14 @@ const Admin = () => {
     e.preventDefault();
     setModalMessage('Registering...');
     try {
-      // Need backend support for admin to register teacher.
-      alert("Teacher registration from dashboard requires the backend endpoint '/api/auth/teacher/register' to be implemented.");
+
+      await api.post('/api/auth/teacher/register', teacherData);
+      alert('Teacher registered successfully!');
+      setShowTeacherModal(false);
+      setTeacherData({ name: '', teacherId: '', email: '', password: '', department: '' });
+      setModalMessage('');
+      fetchTeachers();
+      fetchStats();
     } catch (error) { setModalMessage(error.response?.data?.message || 'Failed to register teacher.'); }
   };
 

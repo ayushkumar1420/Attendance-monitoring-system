@@ -27,7 +27,19 @@ const StudentSignup = () => {
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Error during signup');
+      let errorMsg = 'Error during signup. Please try again.';
+      if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.response?.status === 404) {
+        errorMsg = 'Signup service endpoint not found (404). Please verify backend server.';
+      } else if (err.response?.status >= 500) {
+        errorMsg = `Server error (${err.response.status}). Please check backend logs.`;
+      } else if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+        errorMsg = 'Cannot connect to the backend server. Please ensure the server is running.';
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

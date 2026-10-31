@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const Admin = require('../models/Admin');
 
-dotenv.config();
+const path = require('path');
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const ensureDefaultAdmin = async () => {
   try {
