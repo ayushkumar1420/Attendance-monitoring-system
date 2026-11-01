@@ -179,4 +179,22 @@ router.post('/admin/login', async (req, res) => {
   }
 });
 
+// ==========================================
+// TOKEN VERIFICATION
+// ==========================================
+
+// Verify token validity (used by frontend on page load)
+router.get('/verify', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ valid: false, message: 'No token provided.' });
+
+  try {
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secretkey');
+    res.status(200).json({ valid: true, user: { id: decoded.id, role: decoded.role, email: decoded.email } });
+  } catch (err) {
+    res.status(401).json({ valid: false, message: 'Token is invalid or expired.' });
+  }
+});
+
 module.exports = router;

@@ -1,35 +1,58 @@
 import React, { createContext, useState, useEffect } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    if (token && storedUser) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.exp && payload.exp < Date.now() / 1000) {
-          setToken(null);
-          setUser(null);
+
+    if (!storedToken || !storedUser) {
+      // No session stored — user is logged out
+      setLoading(false);
+      return;
+    }
+
+    // Verify token with the backend — don't just trust localStorage
+    fetch(`${API_URL}/api/auth/verify`, {
+      headers: { Authorization: `Bearer ${storedToken}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.valid) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+        } else {
+          // Server rejected the token — clear session
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-        } else {
-          setUser(JSON.parse(storedUser));
         }
-      } catch (e) {
-        setToken(null);
-        setUser(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
-    }
-    setLoading(false);
-  }, [token]);
+      })
+      .catch(() => {
+        // Backend unreachable — fall back to local JWT expiry check
+        // so the app still works during a cold start
+        try {
+          const payload = JSON.parse(atob(storedToken.split('.')[1]));
+          if (payload.exp && payload.exp < Date.now() / 1000) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          } else {
+            setToken(storedToken);
+            setUser(JSON.parse(storedUser));
+          }
+        } catch {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const login = (jwtToken, userData) => {
     setToken(jwtToken);

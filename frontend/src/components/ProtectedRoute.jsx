@@ -14,8 +14,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // If not allowed, send back to home or a generic unauthorized page
-    return <Navigate to="/" replace />;
+    // Redirect to their own dashboard instead of home
+    return <Navigate to={`/${user.role}`} replace />;
   }
 
   return children;
