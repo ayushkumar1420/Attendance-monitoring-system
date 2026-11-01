@@ -13,7 +13,8 @@ import StudentSignup from "./pages/auth/StudentSignup";
 import TeacherLogin from "./pages/auth/TeacherLogin";
 import AdminLogin from "./pages/auth/AdminLogin";
 
-// Redirect logged-in users away from auth/home pages to their dashboard
+// Redirects already-logged-in users away from login pages to their dashboard.
+// The home page "/" is NOT wrapped in this — it is always accessible.
 const GuestRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
@@ -27,11 +28,8 @@ const App = () => {
       <Router>
         <Layout>
           <Routes>
-            <Route path="/" element={
-              <GuestRoute>
-                <Home />
-              </GuestRoute>
-            } />
+            {/* Home is always visible — never auto-redirect from here */}
+            <Route path="/" element={<Home />} />
 
             {/* Auth Routes — redirect to dashboard if already logged in */}
             <Route path="/auth/student-login" element={
