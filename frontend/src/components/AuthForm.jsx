@@ -8,7 +8,7 @@ const AuthForm = ({ title, role, idField, idLabel, loginEndpoint, signupLink }) 
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { login } = useContext(AuthContext);
+  const { login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -22,6 +22,8 @@ const AuthForm = ({ title, role, idField, idLabel, loginEndpoint, signupLink }) 
       const response = await api.post(loginEndpoint, payload);
       
       if (response.data.token) {
+        // Replace an existing session only after the requested role signs in.
+        logout();
         login(response.data.token, response.data.user);
         navigate(`/${role}`);
       }

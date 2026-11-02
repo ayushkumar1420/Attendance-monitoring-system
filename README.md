@@ -71,8 +71,10 @@ Intelligence Attendance is a modern, full-stack Attendance Monitoring System tha
 
 ## 📦 Deployment (Production)
 
-1. Ensure CORS is configured in `backend/server.js` for your production URL.
-2. Build the frontend:
+1. Deploy the backend as a separate Node service and configure `MONGO_URI`, `JWT_SECRET`, and `PORT` there. Vercel serves the frontend; it does not run `backend/server.js` as part of this static Vite deployment.
+2. In Vercel Project Settings → Environment Variables, set `VITE_API_URL` to the public backend origin (for example, `https://your-backend.example.com`, without a trailing slash). The previous Render URL `https://attendance-ai-rs6k.onrender.com` is no longer resolving and should not be used unless you confirm that service has been restored.
+3. Allow the Vercel site origin in the backend's CORS configuration.
+4. Build the frontend:
    ```bash
    cd frontend
    npm run build

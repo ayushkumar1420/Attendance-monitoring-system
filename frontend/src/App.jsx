@@ -13,12 +13,10 @@ import StudentSignup from "./pages/auth/StudentSignup";
 import TeacherLogin from "./pages/auth/TeacherLogin";
 import AdminLogin from "./pages/auth/AdminLogin";
 
-// Redirects already-logged-in users away from login pages to their dashboard.
-// The home page "/" is NOT wrapped in this — it is always accessible.
+// A signed-in user may still open another role's login page to switch accounts.
 const GuestRoute = ({ children }) => {
   const { user, loading } = useContext(AuthContext);
   if (loading) return <div>Loading...</div>;
-  if (user) return <Navigate to={`/${user.role}`} replace />;
   return children;
 };
 
